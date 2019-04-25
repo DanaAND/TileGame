@@ -1,13 +1,14 @@
 package states;
 
 import tilegame.Game;
+import tilegame.Handler;
 
 import java.awt.*;
 
 public class SettingState extends State {
 
-    public SettingState(Game game){
-        super(game);
+    public SettingState(Handler handler){
+        super(handler);
     }
 
     public void tick() {

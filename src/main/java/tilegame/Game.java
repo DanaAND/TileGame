@@ -2,9 +2,11 @@ package tilegame;
 
 import display.Display;
 import gfx.Assets;
+import gfx.GameCamera;
 import gfx.ImageLoader;
 import gfx.SpriteSheet;
 import input.KeyManager;
+import input.MouseManager;
 import states.GameState;
 import states.MenuState;
 import states.SettingState;
@@ -17,7 +19,7 @@ import java.awt.image.BufferedImage;
 public class Game implements Runnable {
 
     private Display display;
-    public int width, height;
+    private int width, height;
     public String title;
 
     private boolean running = false;
@@ -27,36 +29,52 @@ public class Game implements Runnable {
     private Graphics g;
 
     //States
-    private State gameState;
-    private State menuState;
+    public State gameState;
+    public State menuState;
     private State settingState;
 
     //INPUT
     private KeyManager keyManager;
+    private MouseManager mouseManager;
+
+    //Camera
+    private GameCamera gameCamera;
+
+    //Handeler
+    private Handler handler;
 
     public Game(String title, int width, int height) {
         this.width = width;
         this.height = height;
         this.title = title;
         keyManager = new KeyManager();
+        mouseManager = new MouseManager();
     }
 
     private void init() {
 
         display = new Display(title, width, height);
         display.getFrame().addKeyListener(keyManager);
+        display.getFrame().addMouseListener(mouseManager);
+        display.getFrame().addMouseMotionListener(mouseManager);
+        display.getCanvas().addMouseListener(mouseManager);
+        display.getCanvas().addMouseMotionListener(mouseManager);
         Assets.init();
 
-        gameState = new GameState(this);
-        menuState = new MenuState(this);
-        settingState = new SettingState(this);
-        State.setState(gameState);
+        handler = new Handler(this);
+        gameCamera = new GameCamera(handler, 0, 0);
+//        handler = new Handler(this);
+
+        gameState = new GameState(handler);
+        menuState = new MenuState(handler);
+        settingState = new SettingState(handler);
+        State.setState(menuState);
     }
 
 
     private void tick() {
         keyManager.tick();
-        if(State.getState() != null){
+        if (State.getState() != null) {
             State.getState().tick();
         }
     }
@@ -76,7 +94,7 @@ public class Game implements Runnable {
 
         //Draw Here!
 
-        if(State.getState() != null){
+        if (State.getState() != null) {
             State.getState().render(g);
         }
 
@@ -119,8 +137,24 @@ public class Game implements Runnable {
         stop();
     }
 
-    public KeyManager getKeyManager (){
+    public KeyManager getKeyManager() {
         return keyManager;
+    }
+
+    public MouseManager getMouseManager(){
+        return mouseManager;
+    }
+
+    public GameCamera getGameCamera() {
+        return gameCamera;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 
 
